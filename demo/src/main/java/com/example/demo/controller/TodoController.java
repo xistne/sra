@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -94,5 +96,23 @@ public class TodoController {
 		
 		return ResponseEntity.ok().body(response);
 	}
-	
+	@DeleteMapping
+	public ResponseEntity<?> deleteTodo(@RequestBody TodoDTO dto) {
+		try {
+			String temporaryUserId = "temporary-user";
+			
+			TodoEntity entity = TodoDTO.toEntity(dto);
+			entity.setUserId(temporaryUserId);
+			
+			List<TodoEntity> entities = service.delete(entity);
+			List<TodoDTO> dtos = entities.stream().map(TodoDTO::new).collect(Collectors.toList());
+			ResponseDTO<TodoDTO> reponse = ResponseDTO.<TodoDTO>builder().data(dtos).build();
+
+			return ResponseEntity.ok().body(reponse);	
+		} catch (Exception e) {
+			String errorString = e.getMessage();
+			ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().error(errorString).build();
+			return ResponseEntity.badRequest().body(response);
+		}
+	}
 }
