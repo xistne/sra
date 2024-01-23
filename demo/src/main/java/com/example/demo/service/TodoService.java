@@ -30,7 +30,7 @@ public class TodoService {
 		
 		repository.save(entity);
 		log.info("Entity Id : {} is saved.", entity.getId());
-		return repository.findByUserIdQuery(entity.getUserId());
+		return repository.findByUserId(entity.getUserId());
 	}
 	private void validate(final TodoEntity entity) {
 		if(entity == null) {
@@ -42,5 +42,8 @@ public class TodoService {
 			log.warn("Unknown user.");
 			throw new RuntimeException("Unknown user.");
 		}
+	}
+	public List<TodoEntity> retrieve(final String userId) {
+		return repository.findByUserId(userId);
 	}
 }
